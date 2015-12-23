@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>
+    Title
+  </title>
+  <!-- WebGL base -->
+  <script src="visualizer/o3djs/base.js"></script>
+  <script src="visualizer/cameracontroller.js"></script>
+  <!-- moz dependency -->
+  <script src="visualizer/moz/matrix4x4.js"></script>
+  <!-- Visualizer GL library -->
+  <script type="text/javascript" src="visualizer/visualizer.js"></script>
+</head>
+
+<body>
+  <canvas id="view" width="800px" height="600px"></canvas>
+  <!-- Analyser type -->
+  <input type="radio" name="option" id="freq" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_FREQUENCY);" />
+  <label for="freq">频率波</label>
+  <input type="radio" name="option" id="sono" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM);" checked="checked" />
+  <label for="sono">3D</label>
+  <input type="radio" name="option" id="wave" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_WAVEFORM);" />
+  <label for="wave">波浪</label>
+  <p>
+    <button onclick="changeToMicrophone()">
+      录音
+    </button>
+    <button onclick="changeToAudio()">
+      音频播放
+    </button>
+  </p>
+  <!-- Our Code -->
+  <script type="text/javascript">
+  if (!window.hasOwnProperty('AudioContext')) {
+    alert("Browser not support!");
+  } else {
+    o3djs.require('o3djs.shader');
+
+    // Gloabl Var
+    var audioSource = "voice.mp3",
+      fftSize = 2048, //sample size
+      context,
+      source,
+      analyser,
+      buffer,
+      audioBuffer,
+      analyserView;
+
+
+    // Detect Microphone
+    function getUserMedia(dictionary, callback) {
+      try {
+        navigator.webkitGetUserMedia(dictionary, callback, function() {
+          alert('Stream generation failed.');
+        });
+      } catch (e) {
+        alert('webkitGetUserMedia Error :' + e);
+      }
+    }
+
+    function init() {
+      if(!context || !context.state || context.state == 'closed'){
+          analyserView = new AnalyserView("view");
+
+          context = new AudioContext();
+
+          
+          analyser = context.createAnalyser();
+          analyser.fftSize = fftSize;
+      }
+    }
+    // init Microphone
+    function initMicrophone() {
+      getUserMedia({
+        audio: true
+      }, function(stream) {
+        init();
+        
+        // Create an AudioNode from the stream.
+        source = context.createMediaStreamSource(stream);
+
+        source.connect(analyser);
+        analyser.connect(context.destination);
+
+        analyserView.initByteBuffer();
+
+        window.requestAnimationFrame(draw);
+      });
+    }
+
+    // init Audio
+    function initAudio() {
+      init();
+
+      source = context.createBufferSource();
+
+      // Connect audio processing graph
+      source.connect(analyser);
+      analyser.connect(context.destination);
+
+      loadAudioBuffer(audioSource);
+
+      analyserView.initByteBuffer();
+    }
+
+    function loadAudioBuffer(url) {
+      // Load asynchronously
+
+      var request = new XMLHttpRequest();
+      request.open("GET", url);
+      request.responseType = "arraybuffer";
+
+      request.onload = function() {
+        context.decodeAudioData(
+          request.response,
+          function(buffer) {
+            audioBuffer = buffer;
+            finishLoad(); // add in the slider, etc. now that we've loaded the audio
+          },
+
+          function(buffer) {
+            console.log("Error decoding human voice!");
+          }
+        );
+      }
+
+      request.send();
+    }
+
+    if (!window.requestAnimationFrame) {
+
+      window.requestAnimationFrame = (function() {
+
+        return window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame || // comment out if FF4 is slow
+          window.oRequestAnimationFrame ||
+          window.msRequestAnimationFrame ||
+          function(callback, element) {
+            window.setTimeout(callback, 1000 / 60);
+          };
+
+      })();
+
+    }
+
+    function draw() {
+      analyserView.doFrequencyAnalysis();
+      window.requestAnimationFrame(draw);
+    }
+
+    function finishLoad() {
+      source.buffer = audioBuffer;
+      source.loop = true;
+
+      source.start(0.0);
+
+      window.requestAnimationFrame(draw);
+    }
+
+    function stop(){
+      source.stop && source.stop();
+      source.disconnect();
+      analyser.disconnect();
+      context.close();
+    }
+
+    function changeToAudio(){
+      stop();
+      initAudio();
+    }
+
+    function changeToMicrophone(){
+      stop();
+      initMicrophone();
+    }
+
+    // init Audio
+    window.onload = initAudio;
+  }
+  </script>
+</body>
+
+</html>
