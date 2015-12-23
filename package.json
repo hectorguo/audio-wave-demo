@@ -1,0 +1,26 @@
+{
+  "name": "Audio Wave",
+  "version": "1.0.0",
+  "description": "A audio wave demo",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atom/electron-quick-start.git"
+  },
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "audiowave",
+    "tutorial"
+  ],
+  "author": "HectorGuo",
+  "license": "CC0-1.0",
+  "homepage": "https://github.com/atom/electron-quick-start#readme",
+  "devDependencies": {
+    "electron-prebuilt": "^0.35.0"
+  }
+}
