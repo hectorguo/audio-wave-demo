@@ -166,10 +166,6 @@ if (!window.hasOwnProperty('AudioContext')) {
       source.disconnect();
     }
     // analyser && analyser.disconnect();
-<<<<<<< HEAD
-    // context && context.close();
-=======
->>>>>>> gh-pages
   }
 
   function changeToAudio() {
