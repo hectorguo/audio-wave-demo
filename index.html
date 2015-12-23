@@ -54,24 +54,60 @@
 
     // Detect Microphone
     function getUserMedia(dictionary, callback) {
-      try {
-        navigator.webkitGetUserMedia(dictionary, callback, function() {
-          alert('Stream generation failed.');
+
+      // Fix getUserMedia 
+      var promisifiedOldGUM = function(constraints, successCallback, errorCallback) {
+
+        // First get ahold of getUserMedia, if present
+        var getUserMedia = (navigator.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia ||
+          navigator.msGetUserMedia);
+
+        // Some browsers just don't implement it - return a rejected promise with an error
+        // to keep a consistent interface
+        if (!getUserMedia) {
+          return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+        }
+
+        // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+        return new Promise(function(successCallback, errorCallback) {
+          getUserMedia.call(navigator, constraints, successCallback, errorCallback);
         });
-      } catch (e) {
-        alert('webkitGetUserMedia Error :' + e);
+
       }
+
+      // Older browsers might not implement mediaDevices at all, so we set an empty object first
+      if (navigator.mediaDevices === undefined) {
+        navigator.mediaDevices = {};
+      }
+
+      // Some browsers partially implement mediaDevices. We can't just assign an object
+      // with getUserMedia as it would overwrite existing properties.
+      // Here, we will just add the getUserMedia property if it's missing.
+      if (navigator.mediaDevices.getUserMedia === undefined) {
+        navigator.mediaDevices.getUserMedia = promisifiedOldGUM;
+      }
+
+      navigator.mediaDevices.getUserMedia(dictionary)
+        .then(callback)
+        .catch(function(err) {
+          alert('GetUserMedia Error :' + err.name);
+          console.log(err);
+        });
     }
 
+
+
     function init() {
-      if(!context || !context.state || context.state == 'closed'){
-          analyserView = new AnalyserView("view");
+      if (!context || !context.state || context.state == 'closed') {
+        analyserView = new AnalyserView("view");
 
-          context = new AudioContext();
+        context = new AudioContext();
 
-          
-          analyser = context.createAnalyser();
-          analyser.fftSize = fftSize;
+
+        analyser = context.createAnalyser();
+        analyser.fftSize = fftSize;
       }
     }
     // init Microphone
@@ -80,7 +116,7 @@
         audio: true
       }, function(stream) {
         init();
-        
+
         // Create an AudioNode from the stream.
         source = context.createMediaStreamSource(stream);
 
@@ -162,8 +198,8 @@
       window.requestAnimationFrame(draw);
     }
 
-    function stop(){
-      if(source){
+    function stop() {
+      if (source) {
         source.stop && source.stop();
         source.disconnect();
       }
@@ -171,12 +207,12 @@
       context && context.close();
     }
 
-    function changeToAudio(){
+    function changeToAudio() {
       stop();
       initAudio();
     }
 
-    function changeToMicrophone(){
+    function changeToMicrophone() {
       stop();
       initMicrophone();
     }
