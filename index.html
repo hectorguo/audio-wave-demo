@@ -163,10 +163,12 @@
     }
 
     function stop(){
-      source.stop && source.stop();
-      source.disconnect();
-      analyser.disconnect();
-      context.close();
+      if(source){
+        source.stop && source.stop();
+        source.disconnect();
+      }
+      analyser && analyser.disconnect();
+      context && context.close();
     }
 
     function changeToAudio(){
