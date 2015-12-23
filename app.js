@@ -165,8 +165,8 @@ if (!window.hasOwnProperty('AudioContext')) {
       source.stop && source.stop();
       source.disconnect();
     }
-    analyser && analyser.disconnect();
-    context && context.close();
+    // analyser && analyser.disconnect();
+    // context && context.close();
   }
 
   function changeToAudio() {
