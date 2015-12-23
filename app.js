@@ -179,5 +179,5 @@ if (!window.hasOwnProperty('AudioContext')) {
   }
 
   // init Microphone
-  window.onload = initMicrophone;
+  window.onload = initAudio;
 }
