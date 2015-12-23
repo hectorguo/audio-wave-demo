@@ -62,7 +62,7 @@
     }
 
     function init() {
-      if(!context || !context.state || context.state == 'closed'){
+      if(!context || !analyserView){
           analyserView = new AnalyserView("view");
 
           context = new AudioContext();
@@ -177,8 +177,8 @@
       initMicrophone();
     }
 
-    // init Audio
-    window.onload = initAudio;
+    // init Microphone
+    window.onload = initMicrophone;
   }
   </script>
 </body>
