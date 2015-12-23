@@ -18,12 +18,14 @@
 <body>
   <canvas id="view" width="800px" height="600px"></canvas>
   <!-- Analyser type -->
-  <input type="radio" name="option" id="freq" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_FREQUENCY);" />
-  <label for="freq">频率波</label>
-  <input type="radio" name="option" id="sono" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM);" checked="checked" />
-  <label for="sono">3D</label>
-  <input type="radio" name="option" id="wave" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_WAVEFORM);" />
-  <label for="wave">波浪</label>
+  <p>
+    <input type="radio" name="option" id="freq" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_FREQUENCY);" />
+    <label for="freq">频率波</label>
+    <input type="radio" name="option" id="sono" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM);" checked="checked" />
+    <label for="sono">3D</label>
+    <input type="radio" name="option" id="wave" value="data" onclick="analyserView.setAnalysisType(ANALYSISTYPE_WAVEFORM);" />
+    <label for="wave">波浪</label>
+  </p>
   <p>
     <button onclick="changeToMicrophone()">
       录音
